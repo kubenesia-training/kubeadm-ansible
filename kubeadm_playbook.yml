@@ -14,7 +14,8 @@
       notify: reload sysctl
 
     - name: Enable IPv4 forwarding immediately
-      command: echo 1 > /proc/sys/net/ipv4/ip_forward
+      shell: echo 1 > /proc/sys/net/ipv4/ip_forward
+      become: true
 
     # Disable swap
     - name: Disable swap immediately
@@ -151,7 +152,7 @@
     # Download and install Kubernetes GPG key properly
     - name: Download Kubernetes GPG key
       ansible.builtin.get_url:
-        url: https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key
+        url: https://pkgs.k8s.io/core:/stable:/v1.36/deb/Release.key
         dest: /tmp/kubernetes-key.asc
         mode: '0644'
 
@@ -174,7 +175,7 @@
 
     - name: Add Kubernetes repository
       ansible.builtin.apt_repository:
-        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /"
+        repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.36/deb/ /"
         filename: kubernetes
         state: present
 
@@ -195,6 +196,7 @@
           - kubectl
         state: present
         update_cache: yes
+        allow_change_held_packages: true
 
     - name: Hold Kubernetes packages
       command: apt-mark hold kubelet kubeadm kubectl
